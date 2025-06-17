@@ -1,50 +1,40 @@
-# Welcome to your Expo app 👋
+# 💪 Workout Planner App (Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a React Native mobile application built with **Expo** for planning and tracking workouts. It includes animated exercise previews, draggable lists, equipment buttons, and intuitive workout replacement logic.
 
-## Get started
+## 📦 Tech Stack
 
-1. Install dependencies
+- **React Native (with Expo)**
+- **expo-image**
+- **@expo/vector-icons**
+- **react-native-draggable-flatlist**
+- **react-native-gesture-handler**
+- **Custom Styling with StyleSheet**
+- **Functional Components with Hooks**
 
-   ```bash
-   npm install
-   ```
+## 🚀 Features
 
-2. Start the app
+- View exercises with GIF animations
+- Replace exercises with a tap
+- Drag and reorder exercises
+- Display equipment info with styled buttons
+- Smooth UI layout using `FlatList`, `TouchableOpacity`, etc.
 
-   ```bash
-   npx expo start
-   ```
+## 📲 How to Run the App
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Clone the Repository
 
 ```bash
-npm run reset-project
-```
+git clone https://github.com/yourusername/workout-planner-app.git
+cd workout-planner-app
+npm install -g expo-cli
+npm install
+npx expo install expo-image
+npm install @expo/vector-icons@14.0.4
+npm install react-native-draggable-flatlist@^4.0.3
+npm install react-native-gesture-handler@~2.24.0
+npx expo start  -c
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
 
-To learn more about developing your project with Expo, look at the following resources:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.

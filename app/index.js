@@ -2,13 +2,11 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
- 
   TouchableOpacity,
-  ScrollView,
   StyleSheet,
 } from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons ,Feather,Foundation,FontAwesome5 } from '@expo/vector-icons';
 import Header from './Header'; 
 import { Image } from 'expo-image';
 
@@ -73,7 +71,6 @@ export default function ExerciseList() {
   const [backupExercises, setBackupExercises] = useState([]);
   const [viewedExercises, setViewedExercises] = useState(new Set());
 
-  // Initialize exercise list on mount
   useEffect(() => {
     const exerciseArray = workoutData.exercises.map((item, index) => ({
       id: `${item.equipment}-${index}`,
@@ -90,7 +87,6 @@ export default function ExerciseList() {
     }
   }, []);
 
-  // Track viewed exercises when selectedId changes
   useEffect(() => {
     if (selectedId) {
       setViewedExercises((prev) => {
@@ -116,6 +112,19 @@ export default function ExerciseList() {
   };
 
   const renderItem = ({ item, drag, isActive }) => {
+    if (item.isAddButton) {
+      return (
+        <TouchableOpacity
+          style={styles.addCard}
+          onPress={() => setEditMode(true)}
+        >
+          <View style={styles.addCircle}>
+            <MaterialIcons name="add" size={28} color="black" />
+          </View>
+        </TouchableOpacity>
+      );
+    }
+
     const isSelected = item.id === selectedId;
     const isViewed = viewedExercises.has(item.id);
 
@@ -143,35 +152,28 @@ export default function ExerciseList() {
               contentFit="cover"
             />
 
-            {/* Show play button if selected and not editing */}
             {isSelected && !editMode && (
               <View style={styles.playIconContainer}>
                 <MaterialIcons name="play-arrow" size={16} color="black" />
               </View>
             )}
 
-            {/* Show check mark if viewed (and not selected, or maybe always) */}
             {isViewed && !isSelected && !editMode && (
               <View style={styles.checkMarkContainer}>
-             <MaterialIcons name="check" size={14} color="black" />
-
+                <MaterialIcons name="check" size={14} color="black" />
               </View>
             )}
 
-            {/* Show remove icon if in edit mode */}
             {editMode && (
               <TouchableOpacity
                 style={styles.removeIcon}
                 onPress={() => removeExercise(item.id)}
               >
-                <MaterialIcons name="remove-circle" size={20} color="red" />
+                <MaterialIcons name="remove-circle" size={20} color="#990D35" />
               </TouchableOpacity>
             )}
           </View>
         </View>
-        <Text style={styles.text} numberOfLines={1}>
-          {item.name}
-        </Text>
       </TouchableOpacity>
     );
   };
@@ -189,15 +191,21 @@ export default function ExerciseList() {
     }
   };
 
+  // Append add button to the data
+  const extendedExercises = [...exercises, { id: 'add-button', isAddButton: true }];
+
   return (
     <View style={styles.container}>
       <Header />
 
       <DraggableFlatList
-        data={exercises}
+        data={extendedExercises}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        onDragEnd={({ data }) => setExercises(data)}
+        onDragEnd={({ data }) => {
+          const filtered = data.filter((item) => !item.isAddButton);
+          setExercises(filtered);
+        }}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -205,56 +213,54 @@ export default function ExerciseList() {
       />
 
       {selectedExercise && (
-<View style={styles.detailCardWrapper}>
-      <View style={styles.detailCard}>
+        <View style={styles.detailCardWrapper}>
+          <View style={styles.detailCard}>
+            <View style={styles.actionCard}>
+              <Text style={styles.actionText}>Inclined Bench Press</Text>
+              <TouchableOpacity style={styles.actionButton}>
+                <View style={styles.iconColumn}>
+                  <Feather name="arrow-left" size={12} color="black" />
+                  <Feather name="arrow-right" size={12} color="black" />
+                </View>
+                <Text style={styles.actionButtonText}>Replace</Text>
+              </TouchableOpacity>
+            </View>
 
-        {/* Top Action Card */}
-        <View style={styles.actionCard}>
-          <Text style={styles.actionText}>Inclined Bench Press</Text>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>Replace</Text>
-          </TouchableOpacity>
+            <View style={styles.imageCard}>
+              <Image
+                source={{ uri: selectedExercise.gif }}
+                style={styles.detailImage}
+                contentFit="contain"
+              />
+              <TouchableOpacity style={styles.equipmentButton}>
+                <Text style={styles.equipmentButtonText}>
+                  {selectedExercise.equipment}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.bottomCard}>
+              <TouchableOpacity style={styles.bottomActionButton}>
+                <View style={styles.buttonContent}>
+                  <Foundation name="page-doc" size={18} color="black" />
+                  <Text style={styles.bottomActionButtonText}>Instructions</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.bottomActionButton}>
+                <View style={styles.buttonContent}>
+                  <FontAwesome5 name="running" size={18} color="black" />
+                  <Text style={styles.bottomActionButtonText}>Warm Up</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.bottomActionButton}>
+                <View style={styles.buttonContent}>
+                  <MaterialIcons name="help-outline" size={18} color="#111" />
+                  <Text style={styles.bottomActionButtonText}>FAQ</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-
-        {/* Exercise Image */}
-<View style={styles.imageCard}>
-  <Image
-    source={{ uri: selectedExercise.gif }}
-    style={styles.detailImage}
-    resizeMode="contain"
-  />
-</View>
-
-        {/* Bottom Card with Buttons */}
-
-    <View style={styles.bottomCard}>
-  <TouchableOpacity style={styles.bottomActionButton}>
-    <View style={styles.buttonContent}>
-      <MaterialIcons name="menu-book" size={18} color="#111" />
-      <Text style={styles.bottomActionButtonText}>Instructions</Text>
-    </View>
-  </TouchableOpacity>
-  <TouchableOpacity style={styles.bottomActionButton}>
-    <View style={styles.buttonContent}>
-      <MaterialIcons name="whatshot" size={18} color="#111" />
-      <Text style={styles.bottomActionButtonText}>Warm Up</Text>
-    </View>
-  </TouchableOpacity>
-  <TouchableOpacity style={styles.bottomActionButton}>
-    <View style={styles.buttonContent}>
-      <MaterialIcons name="help-outline" size={18} color="#111" />
-      <Text style={styles.bottomActionButtonText}>FAQ</Text>
-    </View>
-  </TouchableOpacity>
-</View>
-
-
-
-
-      </View>
-    </View>
-
-
       )}
 
       {editMode && (
@@ -269,18 +275,17 @@ export default function ExerciseList() {
             style={[styles.button, styles.saveButton]}
             onPress={onSave}
           >
-            <Text style={styles.buttonText}>Save</Text>
+            <Text style={styles.buttonText}>Save Changes</Text>
           </TouchableOpacity>
         </View>
       )}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 15,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f3f2f7',
     flex: 1,
   },
   scrollContent: {
@@ -354,11 +359,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#fff',
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
     justifyContent: 'space-between',
     flexDirection: 'column',
   },
@@ -367,19 +367,40 @@ imageCard: {
   height: 220,
   borderRadius: 12,
   borderWidth: 1,
-  borderColor: '#F3F2F7', // light border color
-  padding: 10,         // equivalent to "gap" for inner spacing
+  borderColor: '#F3F2F7', 
+  padding: 10,        
   backgroundColor: '#fff',
   alignItems: 'center',
-  justifyContent: 'center',
+  
 },
 
 detailImage: {
   width: '100%',
   height: '100%',
-  borderRadius: 8,     // slightly smaller than card's radius
+  borderRadius: 8,  
+},
+equipmentButton: {
+  width: 102,
+  height: 32,
+  borderRadius: 24,
+  borderWidth: 1,
+  paddingTop: 8,
+  paddingRight: 14,
+  paddingBottom: 8,
+  paddingLeft: 14,
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderColor: '#DFDFDF',
+  backgroundColor:'#F3F2F7',
+  bottom:60,
+  right:105
 },
 
+equipmentButtonText: {
+  fontSize: 12,
+  fontWeight: '500',
+  color: '#464B50',
+},
 
   actionCard: {
     width: '100%',
@@ -402,17 +423,14 @@ detailImage: {
     color: '#010101',
     textAlignVertical: 'center',
   },
-  actionButton: {
-    width: 98,
-    height: 32,
-    paddingTop: 4,
-    paddingRight: 14,
-    paddingBottom: 4,
-    paddingLeft: 10,
-    borderRadius: 24,
-    backgroundColor: '#FFE74C',
-    justifyContent: 'center',
+actionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFE74C',
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    borderRadius: 20,
+    gap: 4, 
   },
   actionButtonText: {
     fontFamily: 'Manrope',
@@ -472,32 +490,42 @@ bottomActionButtonText: {
   marginLeft: 6,
 },
 
+bottomButtonsContainer: {
+  position: 'absolute',
+  top: 698, // Changed from bottom: 40
+  left: 20,
+  width: 353,
+  height: 68,
+  borderRadius: 100,
+  padding: 8,
+  backgroundColor: '#fff',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: "space-evenly", 
+  gap: 16, 
+},
 
+ button: {
+  width: 160.5,
+  height: 52,
+  borderRadius: 198,
+  paddingTop: 8,
+  paddingRight: 12,
+  paddingBottom: 8,
+  paddingLeft: 12,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
 
-  bottomButtonsContainer: {
-    position: 'absolute',
-    bottom: 40,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    paddingHorizontal: 20,
-        flex: 1,
-
-  },
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-  },
   discardButton: {
     backgroundColor: '#ddd',
   },
   saveButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#FFF3A2',
   },
   buttonText: {
-    color: 'white',
+    color: '#010101',
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -519,5 +547,22 @@ bottomActionButtonText: {
     shadowRadius: 1,
     elevation: 2,
 },
+addCard: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginHorizontal: 8,
+},
+
+addCircle: {
+  width: 64,
+  height: 64,
+  borderRadius: 32,
+  borderWidth: 2,
+  borderColor: '#e5e4e6',
+  backgroundColor: '#f9f9f9',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
 
 });
