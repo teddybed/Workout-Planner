@@ -6,7 +6,7 @@ export default function Header() {
   return (
     <View style={styles.container}>
       <Ionicons name="arrow-back" size={28} color="#111" />
-      <Text style={styles.title}>Chris' Full Body</Text>
+      <Text style={styles.title}>Chris' Full Body 1</Text>
     </View>
   );
 }
@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f3f2f7',
+    top:10
   },
   title: {
     fontSize: 18,
