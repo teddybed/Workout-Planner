@@ -71,14 +71,16 @@ export default function ExerciseList() {
   const [selectedId, setSelectedId] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [backupExercises, setBackupExercises] = useState([]);
+  const [viewedExercises, setViewedExercises] = useState(new Set());
 
+  // Initialize exercise list on mount
   useEffect(() => {
     const exerciseArray = workoutData.exercises.map((item, index) => ({
       id: `${item.equipment}-${index}`,
       name: item.name,
       equipment: item.equipment,
-      image: item.asset_url, // PNG thumbnail
-      gif: item.gif_asset_url, // GIF animation
+      image: item.asset_url,
+      gif: item.gif_asset_url,
       exerciseIndex: index,
     }));
     setExercises(exerciseArray);
@@ -87,6 +89,17 @@ export default function ExerciseList() {
       setSelectedId(exerciseArray[0].id);
     }
   }, []);
+
+  // Track viewed exercises when selectedId changes
+  useEffect(() => {
+    if (selectedId) {
+      setViewedExercises((prev) => {
+        const newSet = new Set(prev);
+        newSet.add(selectedId);
+        return newSet;
+      });
+    }
+  }, [selectedId]);
 
   const selectedExercise = selectedId
     ? exercises.find((ex) => ex.id === selectedId)
@@ -104,6 +117,7 @@ export default function ExerciseList() {
 
   const renderItem = ({ item, drag, isActive }) => {
     const isSelected = item.id === selectedId;
+    const isViewed = viewedExercises.has(item.id);
 
     return (
       <TouchableOpacity
@@ -123,13 +137,28 @@ export default function ExerciseList() {
           ]}
         >
           <View style={styles.imageBackground}>
-            {/* Using expo-image's Image */}
-            <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" />
+            <Image
+              source={{ uri: item.image }}
+              style={styles.image}
+              contentFit="cover"
+            />
+
+            {/* Show play button if selected and not editing */}
             {isSelected && !editMode && (
               <View style={styles.playIconContainer}>
                 <MaterialIcons name="play-arrow" size={16} color="black" />
               </View>
             )}
+
+            {/* Show check mark if viewed (and not selected, or maybe always) */}
+            {isViewed && !isSelected && !editMode && (
+              <View style={styles.checkMarkContainer}>
+             <MaterialIcons name="check" size={14} color="black" />
+
+              </View>
+            )}
+
+            {/* Show remove icon if in edit mode */}
             {editMode && (
               <TouchableOpacity
                 style={styles.removeIcon}
@@ -176,25 +205,56 @@ export default function ExerciseList() {
       />
 
       {selectedExercise && (
-        <View style={styles.detailCardWrapper}>
-          <View style={styles.detailCard}>
-            {/* Use expo-image's Image here for GIF animation */}
-            <Image
-              source={{ uri: selectedExercise.gif }}
-              style={styles.detailImage}
-              contentFit="contain"
-            />
-            <Text style={styles.detailName}>{selectedExercise.name}</Text>
-            <Text style={styles.detailEquipment}>
-              Equipment: {selectedExercise.equipment}
-            </Text>
-            <ScrollView style={styles.detailDescriptionContainer}>
-              <Text style={styles.detailDescription}>
-                {selectedExercise.description || 'No description available.'}
-              </Text>
-            </ScrollView>
-          </View>
+<View style={styles.detailCardWrapper}>
+      <View style={styles.detailCard}>
+
+        {/* Top Action Card */}
+        <View style={styles.actionCard}>
+          <Text style={styles.actionText}>Inclined Bench Press</Text>
+          <TouchableOpacity style={styles.actionButton}>
+            <Text style={styles.actionButtonText}>Replace</Text>
+          </TouchableOpacity>
         </View>
+
+        {/* Exercise Image */}
+<View style={styles.imageCard}>
+  <Image
+    source={{ uri: selectedExercise.gif }}
+    style={styles.detailImage}
+    resizeMode="contain"
+  />
+</View>
+
+        {/* Bottom Card with Buttons */}
+
+    <View style={styles.bottomCard}>
+  <TouchableOpacity style={styles.bottomActionButton}>
+    <View style={styles.buttonContent}>
+      <MaterialIcons name="menu-book" size={18} color="#111" />
+      <Text style={styles.bottomActionButtonText}>Instructions</Text>
+    </View>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.bottomActionButton}>
+    <View style={styles.buttonContent}>
+      <MaterialIcons name="whatshot" size={18} color="#111" />
+      <Text style={styles.bottomActionButtonText}>Warm Up</Text>
+    </View>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.bottomActionButton}>
+    <View style={styles.buttonContent}>
+      <MaterialIcons name="help-outline" size={18} color="#111" />
+      <Text style={styles.bottomActionButtonText}>FAQ</Text>
+    </View>
+  </TouchableOpacity>
+</View>
+
+
+
+
+      </View>
+    </View>
+
+
       )}
 
       {editMode && (
@@ -284,13 +344,13 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   detailCardWrapper: {
+    flex: 1,
     alignItems: 'center',
     marginTop: 20,
-    flex: 1,
   },
   detailCard: {
     width: 361,
-    height: 348,
+    height: 390,
     borderRadius: 16,
     backgroundColor: '#fff',
     padding: 20,
@@ -299,33 +359,121 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+  },
+imageCard: {
+  width: 329,
+  height: 220,
+  borderRadius: 12,
+  borderWidth: 1,
+  borderColor: '#F3F2F7', // light border color
+  padding: 10,         // equivalent to "gap" for inner spacing
+  backgroundColor: '#fff',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+detailImage: {
+  width: '100%',
+  height: '100%',
+  borderRadius: 8,     // slightly smaller than card's radius
+},
+
+
+  actionCard: {
+    width: '100%',
+    height: 64,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+
+  },
+  actionText: {
+    fontFamily: 'Manrope',
+    fontWeight: '600',
+    fontSize: 20,
+    lineHeight: 28,
+    letterSpacing: 0,
+    color: '#010101',
+    textAlignVertical: 'center',
+  },
+  actionButton: {
+    width: 98,
+    height: 32,
+    paddingTop: 4,
+    paddingRight: 14,
+    paddingBottom: 4,
+    paddingLeft: 10,
+    borderRadius: 24,
+    backgroundColor: '#FFE74C',
+    justifyContent: 'center',
     alignItems: 'center',
   },
+  actionButtonText: {
+    fontFamily: 'Manrope',
+    fontWeight: '600',
+    fontSize: 14,
+    lineHeight: 21,
+    letterSpacing: 0,
+    textAlign: 'center',
+    color: '#010101',
+    textAlignVertical: 'center',
+  },
   detailImage: {
-    width: 300,
+    width: '100%',
     height: 200,
     borderRadius: 16,
     marginBottom: 15,
   },
-  detailName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#222',
+  bottomCard: {
+    width: '100%',
+    height: 64,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    marginTop: 12,
   },
-  detailEquipment: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 10,
-  },
-  detailDescriptionContainer: {
-    maxHeight: 70,
-  },
-  detailDescription: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-  },
+
+
+bottomActionButton: {
+  alignSelf: 'flex-start', 
+  paddingVertical: 6,
+  paddingHorizontal: 12,
+  borderRadius: 24,
+  borderWidth: 1,
+  borderColor: '#111',
+  backgroundColor: '#fff',
+    marginHorizontal: 2,  
+
+},
+
+buttonContent: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+bottomActionButtonText: {
+  fontFamily: 'Manrope',
+  fontWeight: '600',
+  fontSize: 14,
+  lineHeight: 21,
+  letterSpacing: 0,
+  textAlign: 'center',
+  color: '#111',  
+  marginLeft: 6,
+},
+
+
+
   bottomButtonsContainer: {
     position: 'absolute',
     bottom: 40,
@@ -353,4 +501,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  checkMarkContainer: {
+   position: 'absolute',
+    top: '75%',
+    left: '65%',
+    width: 20,
+    height: 20,
+    backgroundColor: '#ffe74c',
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 1,
+    elevation: 2,
+},
+
 });
