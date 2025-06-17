@@ -186,7 +186,6 @@ export default function ExerciseList() {
     }
   };
 
-  // Append add button to the data
   const extendedExercises = [...exercises, { id: 'add-button', isAddButton: true }];
 
   return (

@@ -211,7 +211,7 @@ bottomActionButtonText: {
 
 bottomButtonsContainer: {
   position: 'absolute',
-  top: 698, // Changed from bottom: 40
+  top: 698, 
   left: 20,
   width: 353,
   height: 68,
