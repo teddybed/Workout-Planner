@@ -25,8 +25,8 @@ This is a React Native mobile application built with **Expo** for planning and t
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/workout-planner-app.git
-cd workout-planner-app
+git clone https://github.com/teddybed/Workout-Planner
+cd Workout-Planner
 npm install -g expo-cli
 npm install
 npx expo install expo-image
